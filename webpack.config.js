@@ -7,7 +7,7 @@ module.exports = {
   },
   output: {
     filename: 'bundle.js',
-    path: path.join(__dirname, 'dist'),
+    path: path.resolve('./dist'),
     publicPath: 'dist'
   },
   devServer: {
@@ -36,8 +36,9 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
+      inject: true,
       filename: 'index.html',
-      template: './src/index.html',
+      template:  path.resolve('./src/index.html'),
       chunks: []
     }),
     new CleanWebpackPlugin(),

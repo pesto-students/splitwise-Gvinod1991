@@ -1,79 +1,35 @@
-import '../signup.html';
-import '../app.html';
+// Import modules
+import Store from './modules/Store';
+import User from './modules/User';
+import UI from './modules/Ui';
 
+// Import html files
+import '../signup.html';
+
+// Utilities imports
 import { isEmailValid, isPhoneNumberValid } from './utils/validations';
 
-//User class :Represent the User
-class User {
-  constructor(name, emailId, phoneNumber, password) {
-    this.name = name;
-    this.emailId = emailId;
-    this.phoneNumber = phoneNumber;
-    this.password = password;
-  }
-}
-
-// Store class :Handle the storage
-class Store {
-  static getUsers() {
-    let users = window.localStorage.getItem('users');
-    if (users !== null) {
-      users = JSON.parse(users);
-    } else {
-      users = [];
-    }
-    return users;
-  }
-  static saveUser(newUser) {
-    let users = this.getUsers();
-    //Check if user already exists
-    const [userExists] = users.filter(user => user.emailId === newUser.emailId);
-    if (!userExists) {
-      newUser['id'] = `u${users.length + 1}`;
-      users.push(newUser);
-      window.localStorage.setItem("users", JSON.stringify(users));
-      return true;
-    }
-    return false;
-  }
-  static authenticateUser(emailId, password) {
-    let users = this.getUsers();
-    //Check if user already exists
-    const [userExists] = users.filter(user => user.emailId === emailId && user.password === password);
-    if (userExists) {
-      return true;
-    }
-    return false;
-  }
-}
-
-// UI class : Handle UI tasks
-class UI {
-
-  static showAlert(selector, message) {
-    document.querySelector(`#${selector}`).style.display = 'block';
-    document.querySelector(`#${selector}`).innerText = message;
-    setTimeout(() => {
-      document.querySelector(`#${selector}`).style.display = 'none';
-      document.querySelector(`#${selector}`).innerText = "";
-    }, 3000);
-  }
-}
+// Import js files for each page
+import './app';
+import './addExpenses';
 
 /* Events */
-//Event:create new User  
-document.querySelector("#signup-form") && document.querySelector("#signup-form").addEventListener('submit', (e) => {
-  //prevent the default behaviour of the submit btn
+// Event:create new User
+const signupFormSelector = document.querySelector('#signup-form');
+const loginFormSelector = document.querySelector('#login-form');
+
+signupFormSelector && signupFormSelector.addEventListener('submit', (e) => {
+  // prevent the default behaviour of the submit btn
   e.preventDefault();
 
   let name = document.querySelector('#name').value;
   let emailId = document.querySelector('#emailId').value;
   let phoneNumber = document.querySelector('#phoneNumber').value;
   let password = document.querySelector('#password').value;
-  //Add validation here 
-  name = name !== "" ? name : false;
-  emailId = emailId !== '' ? emailId : false;
-  phoneNumber = phoneNumber !== '' ? phoneNumber : false;
+  // Add validation here
+  name = name !== '' ? name : false;
+  emailId = emailId !== '' && isEmailValid(emailId) ? emailId : false;
+  phoneNumber = phoneNumber !== '' && isPhoneNumberValid(phoneNumber) ? phoneNumber : false;
   password = password !== '' ? password : false;
 
   if (!name && !emailId && !phoneNumber && !password) {
@@ -90,13 +46,13 @@ document.querySelector("#signup-form") && document.querySelector("#signup-form")
   }
 });
 
-//Login event
-document.querySelector("#login-form") && document.querySelector("#login-form").addEventListener('submit', (e) => {
-  //prevent the default behaviour of the submit btn
+// Login event
+loginFormSelector && loginFormSelector.addEventListener('submit', (e) => {
+  // prevent the default behaviour of the submit btn
   e.preventDefault();
   let emailId = document.querySelector('#emailId').value;
   let password = document.querySelector('#password').value;
-  //Add validation here 
+  // Add validation here
   emailId = emailId !== '' && isEmailValid(emailId) ? emailId : false;
   password = password !== '' ? password : false;
   if (!emailId) {

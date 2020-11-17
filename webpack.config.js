@@ -36,7 +36,6 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      inject: true,
       filename: 'index.html',
       template:  path.resolve('./src/index.html'),
       chunks: []

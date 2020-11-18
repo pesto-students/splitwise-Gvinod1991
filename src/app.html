@@ -25,10 +25,46 @@
       </div>
       <div class="col-md-2"></div>
     </div>
-    <div class="row">
+    <hr />
+    <div class="row mt-4">
       <div class="col-md-2"></div>
       <div class="col-md-8">
-        Show expenses here!
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Choose others or you to show balance?</label>
+              <select id="app-group-members" class="form-control">
+              </select>
+              <p id="ap-error-group-members" class="text-danger"></p>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-primary mt-5" id="show-balance">Show</button>
+          </div>
+          <div class="col-md-2">
+            <h4 class="mt-5"> OR</h4>
+          </div>
+          <div class="col-md-4">
+            <button class="btn btn-primary mt-5" id="show-balances">Show All Balances</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-2"></div>
+          <div class="col-md-8">
+            <table class="table">
+              <thead>
+                <th>User </th>
+                <th>owes</th>
+                <th>To</th>
+                <th>Amount</th>
+              </thead>
+              <tbody id="table-body">
+
+              </tbody>
+            </table>
+          </div>
+          <div class="col-md-2"></div>
+        </div>
       </div>
       <div class="col-md-2"></div>
     </div>

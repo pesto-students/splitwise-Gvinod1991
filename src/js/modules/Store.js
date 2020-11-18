@@ -5,11 +5,10 @@ class Store {
     if (users !== null) {
       users = JSON.parse(users);
     } else {
-      users = [];
+      users = [{ name: "Test user", emailId: "test@test.com", phoneNumber: "1234567890", password: "test123", id: "u1" }];
     }
     return users;
   }
-
   static saveUser(newUser) {
     const users = this.getUsers();
     const newUserToBeSaved = newUser;
@@ -44,6 +43,15 @@ class Store {
       return loggedInUser;
     }
     return false;
+  }
+
+  static logout() {
+    try {
+      window.localStorage.removeItem('loggedInUser');
+    } catch (err) {
+      return false;
+    }
+    return true;
   }
 }
 

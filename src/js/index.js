@@ -30,11 +30,21 @@ signupFormSelector && signupFormSelector.addEventListener('submit', (e) => {
   name = name !== '' ? name : false;
   emailId = emailId !== '' && isEmailValid(emailId) ? emailId : false;
   phoneNumber = phoneNumber !== '' && isPhoneNumberValid(phoneNumber) ? phoneNumber : false;
+  console.log(isPhoneNumberValid(phoneNumber));
   password = password !== '' ? password : false;
-
-  if (!name && !emailId && !phoneNumber && !password) {
-    UI.showAlert('error-message', 'Please fill in all fields!');
-  } else {
+  if (!name) {
+    UI.showAlert('name-error', 'Name id required!',5000);
+  }
+  if (!emailId) {
+    UI.showAlert('email-error', 'Valid email id required!',5000);
+  }
+  if (!phoneNumber) {
+    UI.showAlert('phoneNumber-error', 'Valid phone number id required!',5000);
+  }
+  if (!password) {
+    UI.showAlert('password-error', 'Password is required!',5000);
+  }
+  if (name && emailId && phoneNumber && password) {
     const user = new User(name, emailId, phoneNumber, password);
     if (Store.saveUser(user)) {
       UI.showAlert('success-message', 'Signup successful!');

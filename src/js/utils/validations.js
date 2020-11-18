@@ -4,7 +4,8 @@ function isEmailValid(emailId) {
 }
 
 function isPhoneNumberValid(phoneNumber) {
-  const re = /^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]\d{3}[\s.-]\d{4}$/;
+  const re =/^\s*(?:\+?(\d{1,3}))?[-. (]*(\d{3})[-. )]*(\d{3})[-. ]*(\d{4})(?: *x(\d+))?\s*$/;
+  console.log(re.test(parseFloat(phoneNumber)));
   return re.test(phoneNumber);
 }
 

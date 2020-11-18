@@ -8,15 +8,13 @@ const showBalanceSelector = document.querySelector('#show-balance');
 const showBalancesSelector = document.querySelector('#show-balances');
 const appGroupMembers = document.querySelector('#app-group-members');
 const tableBody = document.querySelector('#table-body');
-
+const logoutSelector= document.querySelector('#logout');
 class App {
   static showLoggedInUser() {
     const loggedInUser = Store.getLoggedInUser();
-    // No logged in user found then redirect to login page
-    if (!loggedInUser) {
-      window.location.assign('/index.html');
+    if(loggedInUser){
+      this.displayLoggedUser(loggedInUser);
     }
-    this.displayLoggedUser(loggedInUser);
   }
 
   static displayLoggedUser(loggedInUser) {
@@ -43,6 +41,7 @@ class App {
   }
   static showSingleMemberBalance(user) {
     const allExpenses = ExpenseStore.getAllExpenses();
+    const users = Store.getUsers();
     let paidByUser = allExpenses.reduce((acc, expense) => {
       const { userId, expenseSplit, splitType, expenseAmount } = expense;
       if (userId === user) {
@@ -73,9 +72,7 @@ class App {
       return "No balance";
     }
     else if (paidByUser > expenseByUser) {
-      const users = Store.getUsers();
       const [requestedUser] = users.filter((currentUser) => currentUser.id === user);
-      console.log(requestedUser);
       const filteredUsers = users.filter((currentUser) => currentUser.id !== user);
       const expenses = filteredUsers.map((currentUser) => {
         const amount = allExpenses.reduce((acc, expense) => {
@@ -91,11 +88,54 @@ class App {
         }, 0);
         return { paidBy: requestedUser.name, oweBy: currentUser.name, amount }
       })
-      return expenses;
+      return expenses.filter((expenseData)=>expenseData.amount!==0);
+    }
+    else if (expenseByUser > paidByUser) {
+      const [requestedUser] = users.filter((currentUser) => currentUser.id === user);
+      let requestedUserExpenses=[];
+      allExpenses.map((expense) => {
+        const { userId, expenseSplit } = expense;
+        const [userWhoPaid] = users.filter((currentUser) => currentUser.id === userId);
+        const [requestedUserExpense]=expenseSplit.filter(({ userId }) => userId === requestedUser.id);
+        const [userWhoPaidExists] = requestedUserExpenses.filter((expense)=> expense.paidByUserId===userWhoPaid.id);
+        const expenseAmount=requestedUserExpense ? parseFloat(requestedUserExpense.amount) : 0;
+        if(userWhoPaidExists){
+          requestedUserExpenses=requestedUserExpenses.map((expense) => {
+           expense.amount+=expenseAmount;
+           return expense;
+          });
+        }else{
+          requestedUserExpenses.push({paidByUserId:userWhoPaid.id,paidBy: userWhoPaid.name,oweBy: requestedUser.name, amount:expenseAmount});
+        }
+      });
+      return requestedUserExpenses.filter((expenseData)=>expenseData.amount!==0);
     }
   }
-  static showAllBalances() {
 
+  static showAllBalances() {
+    const users = Store.getUsers();
+    const allExpenses = ExpenseStore.getAllExpenses();
+    const expenses = users.map((currentUser) => {
+      const requestedUser = currentUser;
+      let requestedUserExpenses=[];
+      allExpenses.map((expense) => {
+        const { userId, expenseSplit } = expense;
+        const [userWhoPaid] = users.filter((currentUser) => currentUser.id === userId);
+        const [requestedUserExpense]=expenseSplit.filter(({ userId }) => userId === requestedUser.id);
+        const [userWhoPaidExists] = requestedUserExpenses.filter((expense)=> expense.paidByUserId===userWhoPaid.id);
+        const expenseAmount=requestedUserExpense ? parseFloat(requestedUserExpense.amount) : 0;
+        if(userWhoPaidExists){
+          requestedUserExpenses=requestedUserExpenses.map((expense) => {
+            expense.amount+=expenseAmount;
+            return expense;
+          });
+        }else{
+          requestedUserExpenses.push({paidByUserId:userWhoPaid.id,paidBy: userWhoPaid.name,oweBy: requestedUser.name, amount:expenseAmount});
+        }
+      });
+      return requestedUserExpenses[0];
+    });
+    return expenses.filter((expenseData)=>expenseData.amount!==0 && expenseData.paidBy !== expenseData.oweBy);
   }
 }
 
@@ -109,14 +149,50 @@ showBalanceSelector && showBalanceSelector.addEventListener('click', () => {
   const selectedMember = appGroupMembers.value;
   if (selectedMember !== "") {
     const balances = App.showSingleMemberBalance(selectedMember);
-    balances.map((balanceItem) => {
+    tableBody.innerHTML="";
+    if(balances !=="no balance"){
+      balances.map((balanceItem) => {
+        const row = document.createElement("TR");
+        row.innerHTML = `
+        <td>${balanceItem.oweBy}</td>
+        <td>owes</td>
+        <td>${balanceItem.paidBy}</td>
+        <td>${balanceItem.amount}</td>`
+        tableBody.appendChild(row);
+      });
+    }
+    else{
       const row = document.createElement("TR");
       row.innerHTML = `
-      <td>${balanceItem.oweBy}</td>
-      <td>owes</td>
-      <td>${balanceItem.paidBy}</td>
-      <td>${balanceItem.amount}</td>`
+      <td>${balances}</td>`;
       tableBody.appendChild(row);
-    });
+    }
   }
 });
+
+showBalancesSelector && showBalancesSelector.addEventListener('click', () => {
+    const balances = App.showAllBalances();
+    tableBody.innerHTML="";
+    if(balances){
+      balances.map((balanceItem) => {
+        const row = document.createElement("TR");
+        row.innerHTML = `
+        <td>${balanceItem.oweBy}</td>
+        <td>owes</td>
+        <td>${balanceItem.paidBy}</td>
+        <td>${balanceItem.amount}</td>`
+        tableBody.appendChild(row);
+      });
+    }
+    else{
+      const row = document.createElement("TR");
+      row.innerHTML = `
+      <td>${balances}</td>`;
+      tableBody.appendChild(row);
+    }
+});
+logoutSelector && logoutSelector.addEventListener('click',()=>{
+  if(Store.logout()){
+    window.location.assign('/index.html');
+  }
+})

@@ -150,7 +150,7 @@ showBalanceSelector && showBalanceSelector.addEventListener('click', () => {
   if (selectedMember !== "") {
     const balances = App.showSingleMemberBalance(selectedMember);
     tableBody.innerHTML="";
-    if(balances !=="no balance"){
+    if(balances !=="No balance"){
       balances.map((balanceItem) => {
         const row = document.createElement("TR");
         row.innerHTML = `

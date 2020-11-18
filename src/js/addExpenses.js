@@ -224,7 +224,7 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
   if (!splitType) {
     UI.showAlert('error-split-type', 'Expense split type is required!');
   }
-  if (description && selectedGroupMembers && expenseAmount && splitType && splitAmountOrPercentOfMembers) {
+  if (description && selectedGroupMembers && expenseAmount && splitType) {
     const expenseDataArgumentObject = {
       expenseAmount,
       groupMembers: selectedGroupMembers,

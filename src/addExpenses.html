@@ -17,7 +17,14 @@
     <div class="row">
       <div class="col-md-2"></div>
       <div class="col-md-8">
-        <h4>Add Expense</h4>
+        <div class="row">
+          <div class="col-md-6">
+            <h4>Add Expense</h4>
+          </div>
+          <div class="col-md-6">
+            <a href="/app.html" class="btn btn-primary">Back to home</a>
+          </div>
+        </div>
         <form class="form" id="expense-form">
           <div class="form-group">
             <label>Description</label>
@@ -27,28 +34,28 @@
           <div class="form-group">
             <label>Choose Friends</label>
             <select id="group-members" class="form-control" multiple>
-              <option value="u2">Godti Prakash</option>
-              <option value="u3">Godti Vijaya</option>
-              <option value="u4">Godti Vinod</option>
             </select>
             <p id="error-group-members" class="text-danger"></p>
           </div>
           <div class="form-group">
             <label>Amount</label>
-            <input id="expense-amount" class="form-control" type="text" />
+            <input pattern="^[0-9]*$" id="expense-amount" class="form-control" type="number" />
             <p id="error-expense-amount" class="text-danger"></p>
           </div>
           <div class="form-group">
             <label>Split Expense </label>
             <select id="split-type" class="form-control">
-              <option value="equally">Equally</option>
-              <option value="exact">Exact</option>
-              <option value="percent">Percent</option>
+              <option value="equally">EQUALLY</option>
+              <option value="exact">EXACT</option>
+              <option value="percent">PERCENT</option>
             </select>
             <p id="error-split-type" class="text-danger"></p>
           </div>
           <div class="form-group">
-            <label>You paid and split equally</label>
+            <label id="split-result-label">You paid and split EQUALLY</label>
+            <div id="split-result">
+
+            </div>
           </div>
           <button type="submit" class="btn btn-primary btn-block">Save</button>
         </form>

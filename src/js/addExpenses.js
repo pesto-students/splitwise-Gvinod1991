@@ -120,7 +120,7 @@ class AddExpense {
         return `
           <div class="row">
             <div class="col-md-6">
-            Expense amount percent for ${name}
+            Expense amount percent for ${nameText}
             </div>
             <input placeholder="Expense amount percent for ${nameText}" class="col-md-6 form-control" id="${id}-percent-amount" type="number" />
             <p id="error-${id}-expense-percent" class="text-danger"></p>

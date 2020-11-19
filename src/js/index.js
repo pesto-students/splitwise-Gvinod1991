@@ -30,7 +30,6 @@ signupFormSelector && signupFormSelector.addEventListener('submit', (e) => {
   name = name !== '' ? name : false;
   emailId = emailId !== '' && isEmailValid(emailId) ? emailId : false;
   phoneNumber = phoneNumber !== '' && isPhoneNumberValid(phoneNumber) ? phoneNumber : false;
-  console.log(isPhoneNumberValid(phoneNumber));
   password = password !== '' ? password : false;
   if (!name) {
     UI.showAlert('name-error', 'Name id required!',5000);

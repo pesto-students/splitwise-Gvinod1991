@@ -32,7 +32,7 @@ class App {
     users.map(({ name, id }) => {
       const nameText = loggedInUser.id === id ? 'You' : name;
       const newOption = document.createElement('option');
-      const optionText = document.createTextNode(nameText);
+      const optionText = document.createTextNode(`${nameText}(${id})`);
       newOption.appendChild(optionText);
       // and option value
       newOption.setAttribute('value', id);
@@ -40,76 +40,11 @@ class App {
     });
   }
   static showSingleMemberBalance(user) {
-    const allExpenses = ExpenseStore.getAllExpenses();
-    const users = Store.getUsers();
-    let paidByUser = allExpenses.reduce((acc, expense) => {
-      const { userId, expenseSplit, splitType, expenseAmount } = expense;
-      if (userId === user) {
-        expenseSplit.map(({ userId, amount }) => {
-          if (userId !== user && splitType !== 'exact') {
-            acc += parseFloat(amount);
-          }
-        });
-        if (splitType === 'exact') {
-          acc += parseFloat(expenseAmount);
-          console.log(acc);
-        }
-      }
-      return acc;
-    }, 0);
-    let expenseByUser = allExpenses.reduce((acc, expense) => {
-      const { userId, expenseSplit } = expense;
-      expenseSplit.map(({ userId, amount }) => {
-        if (userId === user) {
-          acc += parseFloat(amount);
-        }
-      });
-      return acc;
-    }, 0);
-    paidByUser = Math.round(paidByUser);
-    expenseByUser = Math.round(expenseByUser);
-    if (paidByUser === expenseByUser) {
-      return "No balance";
+    const allBalances=this.showAllBalances();
+    if(allBalances){
+      return allBalances.filter((balanceItem)=>balanceItem.oweById===user || balanceItem.paidByUserId === user);
     }
-    else if (paidByUser > expenseByUser) {
-      const [requestedUser] = users.filter((currentUser) => currentUser.id === user);
-      const filteredUsers = users.filter((currentUser) => currentUser.id !== user);
-      const expenses = filteredUsers.map((currentUser) => {
-        const amount = allExpenses.reduce((acc, expense) => {
-          const { userId, expenseSplit } = expense;
-          if (userId === user) {
-            expenseSplit.map(({ userId, amount }) => {
-              if (userId === currentUser.id) {
-                acc += parseFloat(amount);
-              }
-            });
-          }
-          return acc;
-        }, 0);
-        return { paidBy: requestedUser.name, oweBy: currentUser.name, amount }
-      })
-      return expenses.filter((expenseData)=>expenseData.amount!==0);
-    }
-    else if (expenseByUser > paidByUser) {
-      const [requestedUser] = users.filter((currentUser) => currentUser.id === user);
-      let requestedUserExpenses=[];
-      allExpenses.map((expense) => {
-        const { userId, expenseSplit } = expense;
-        const [userWhoPaid] = users.filter((currentUser) => currentUser.id === userId);
-        const [requestedUserExpense]=expenseSplit.filter(({ userId }) => userId === requestedUser.id);
-        const [userWhoPaidExists] = requestedUserExpenses.filter((expense)=> expense.paidByUserId===userWhoPaid.id);
-        const expenseAmount=requestedUserExpense ? parseFloat(requestedUserExpense.amount) : 0;
-        if(userWhoPaidExists){
-          requestedUserExpenses=requestedUserExpenses.map((expense) => {
-           expense.amount+=expenseAmount;
-           return expense;
-          });
-        }else{
-          requestedUserExpenses.push({paidByUserId:userWhoPaid.id,paidBy: userWhoPaid.name,oweBy: requestedUser.name, amount:expenseAmount});
-        }
-      });
-      return requestedUserExpenses.filter((expenseData)=>expenseData.amount!==0);
-    }
+    return false;
   }
 
   static showAllBalances() {
@@ -121,7 +56,7 @@ class App {
       allExpenses.map((expense) => {
         const { userId, expenseSplit } = expense;
         const [userWhoPaid] = users.filter((currentUser) => currentUser.id === userId);
-        const [requestedUserExpense]=expenseSplit.filter(({ userId }) => userId === requestedUser.id);
+        const [requestedUserExpense]=expenseSplit.filter(({ userId }) => userId === requestedUser.id && userId !== userWhoPaid.id);
         const [userWhoPaidExists] = requestedUserExpenses.filter((expense)=> expense.paidByUserId===userWhoPaid.id);
         const expenseAmount=requestedUserExpense ? parseFloat(requestedUserExpense.amount) : 0;
         if(userWhoPaidExists){
@@ -130,12 +65,52 @@ class App {
             return expense;
           });
         }else{
-          requestedUserExpenses.push({paidByUserId:userWhoPaid.id,paidBy: userWhoPaid.name,oweBy: requestedUser.name, amount:expenseAmount});
+          if(expenseAmount > 0){
+            requestedUserExpenses.push({paidByUserId:userWhoPaid.id,paidBy: userWhoPaid.name,oweBy: requestedUser.name,oweById:requestedUser.id,amount:expenseAmount});
+          }
         }
       });
-      return requestedUserExpenses[0];
+      return requestedUserExpenses;
     });
-    return expenses.filter((expenseData)=>expenseData.amount!==0 && expenseData.paidBy !== expenseData.oweBy);
+    const flattenExpenses=expenses.flat();
+    const paidByUsers=flattenExpenses.reduce((acc,expense)=> {
+      if(!acc.includes(expense.paidByUserId)){acc.push(expense.paidByUserId)}
+      return acc;
+    },[]);
+    const cycleOweData = paidByUsers.map((user)=>{
+      return flattenExpenses.filter((expense)=>expense.oweById===user);
+    });
+    const cycleOweDataFlatten=cycleOweData.flat();
+    cycleOweDataFlatten.map((filterRecord)=>{
+      flattenExpenses.splice(flattenExpenses.findIndex((item)=>
+      filterRecord.paidByUserId===item.paidByUserId && 
+      filterRecord.paidBy===item.paidBy && 
+      filterRecord.oweById===item.oweById && 
+      filterRecord.oweBy===item.oweBy && 
+      filterRecord.amount===item.amount),1);
+    });
+    const cycleOweMergedList=[];
+    cycleOweDataFlatten.map((data)=>{
+      const [cycleOweMergedData]=cycleOweMergedList.filter((item)=>item.paidByUserId===data.paidByUserId && item.oweById===data.oweById);
+      if(!cycleOweMergedData){
+        const [filteredCycleOweDataFlatten]=cycleOweDataFlatten.filter((item)=>item.paidByUserId===data.oweById && item.oweById===data.paidByUserId);
+        filteredCycleOweDataFlatten.amount -= data.amount;
+        cycleOweMergedList.push(filteredCycleOweDataFlatten);
+      };
+    });
+    cycleOweMergedList.map((cycleMergedData)=> {
+        const {oweById,paidBy,oweBy,paidByUserId,amount}=cycleMergedData;
+        if( amount < 0){
+          return {paidByUserId:oweById,paidBy:oweBy,oweById:paidByUserId,oweBy:paidBy,amount:Math.abs(amount)}
+        }
+        return cycleMergedData;
+    });
+    const finalExpensesBalances=[...flattenExpenses,...cycleOweMergedList];
+    const [checkAllFlattenExpenses]= finalExpensesBalances.filter((expenseItem)=>Object.keys(expenseItem).length !== 0);
+    if(checkAllFlattenExpenses){
+      return finalExpensesBalances
+    }
+    return false;
   }
 }
 
@@ -150,7 +125,7 @@ showBalanceSelector && showBalanceSelector.addEventListener('click', () => {
   if (selectedMember !== "") {
     const balances = App.showSingleMemberBalance(selectedMember);
     tableBody.innerHTML="";
-    if(balances !=="No balance"){
+    if(balances){
       balances.map((balanceItem) => {
         const row = document.createElement("TR");
         row.innerHTML = `
@@ -164,7 +139,7 @@ showBalanceSelector && showBalanceSelector.addEventListener('click', () => {
     else{
       const row = document.createElement("TR");
       row.innerHTML = `
-      <td>${balances}</td>`;
+      <td>No Balance</td>`;
       tableBody.appendChild(row);
     }
   }
@@ -187,7 +162,7 @@ showBalancesSelector && showBalancesSelector.addEventListener('click', () => {
     else{
       const row = document.createElement("TR");
       row.innerHTML = `
-      <td>${balances}</td>`;
+      <td>No Balances</td>`;
       tableBody.appendChild(row);
     }
 });

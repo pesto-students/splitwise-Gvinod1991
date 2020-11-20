@@ -98,17 +98,17 @@ class App {
         cycleOweMergedList.push(filteredCycleOweDataFlatten);
       };
     });
-    cycleOweMergedList.map((cycleMergedData)=> {
+    const updatedCycleOweMergedList = cycleOweMergedList.map((cycleMergedData)=> {
         const {oweById,paidBy,oweBy,paidByUserId,amount}=cycleMergedData;
-        if( amount < 0){
-          return {paidByUserId:oweById,paidBy:oweBy,oweById:paidByUserId,oweBy:paidBy,amount:Math.abs(amount)}
+          if( parseFloat(amount) < 0){
+           return {paidByUserId:oweById,paidBy:oweBy,oweById:paidByUserId,oweBy:paidBy,amount:Math.abs(amount)};
         }
         return cycleMergedData;
     });
-    const finalExpensesBalances=[...flattenExpenses,...cycleOweMergedList];
+    const finalExpensesBalances=[...flattenExpenses,...updatedCycleOweMergedList];
     const [checkAllFlattenExpenses]= finalExpensesBalances.filter((expenseItem)=>Object.keys(expenseItem).length !== 0);
     if(checkAllFlattenExpenses){
-      return finalExpensesBalances
+      return finalExpensesBalances.map((expense)=> {expense.amount = Number(expense.amount).toFixed(2);return expense})
     }
     return false;
   }
@@ -118,12 +118,13 @@ class App {
 window.addEventListener('load', () => {
   App.showLoggedInUser();
   App.setOptionsToMemberSelect();
+  showBalanceToDom();
 });
-
-showBalanceSelector && showBalanceSelector.addEventListener('click', () => {
-  const selectedMember = appGroupMembers.value;
+function showBalanceToDom(){
+  const selectedMember = appGroupMembers && appGroupMembers.value;
   if (selectedMember !== "") {
     const balances = App.showSingleMemberBalance(selectedMember);
+    if(tableBody){
     tableBody.innerHTML="";
     if(balances){
       balances.map((balanceItem) => {
@@ -143,31 +144,39 @@ showBalanceSelector && showBalanceSelector.addEventListener('click', () => {
       tableBody.appendChild(row);
     }
   }
+}}
+function showAllBalancesDom(){
+  const balances = App.showAllBalances();
+  if(tableBody){
+      tableBody.innerHTML = "";
+      if(balances){
+        balances.map((balanceItem) => {
+          const row = document.createElement("TR");
+          row.innerHTML = `
+          <td>${balanceItem.oweBy}</td>
+          <td>owes</td>
+          <td>${balanceItem.paidBy}</td>
+          <td>${balanceItem.amount}</td>`
+          tableBody.appendChild(row);
+        });
+      }
+      else{
+        const row = document.createElement("TR");
+        row.innerHTML = `
+        <td>No Balances</td>`;
+        tableBody.appendChild(row);
+      }
+  }
+}
+showBalanceSelector && showBalanceSelector.addEventListener('click', () => {
+  showBalanceToDom();
 });
 
 showBalancesSelector && showBalancesSelector.addEventListener('click', () => {
-    const balances = App.showAllBalances();
-    tableBody.innerHTML="";
-    if(balances){
-      balances.map((balanceItem) => {
-        const row = document.createElement("TR");
-        row.innerHTML = `
-        <td>${balanceItem.oweBy}</td>
-        <td>owes</td>
-        <td>${balanceItem.paidBy}</td>
-        <td>${balanceItem.amount}</td>`
-        tableBody.appendChild(row);
-      });
-    }
-    else{
-      const row = document.createElement("TR");
-      row.innerHTML = `
-      <td>No Balances</td>`;
-      tableBody.appendChild(row);
-    }
+  showAllBalancesDom();
 });
 logoutSelector && logoutSelector.addEventListener('click',()=>{
   if(Store.logout()){
     window.location.assign('/index.html');
   }
-})
+});

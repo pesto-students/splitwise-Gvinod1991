@@ -176,12 +176,12 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
 
   // Get the share amount and percent when split type is exact or percent
   let splitAmountOrPercentOfMembers;
-  if (splitType === 'exact') {
+  if (splitType === 'exact' && selectedGroupMembers) {
     splitAmountOrPercentOfMembers = selectedGroupMembers.map((member) => {
       return { userId: member, amountOrPercent: document.querySelector(`#${member}-expense-amount`).value }
     });
   }
-  else if (splitType === 'percent') {
+  else if (splitType === 'percent' && selectedGroupMembers) {
     const loggedInUser = Store.getLoggedInUser();
     const updatedGroupMembers = [...selectedGroupMembers, loggedInUser.id];
     splitAmountOrPercentOfMembers = updatedGroupMembers.map((member) => {
@@ -206,13 +206,13 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
     });
     
   }
+  
   if (validationsOfSplitAmountOrPercentOfMember) {
     validationsOfSplitAmountOrPercentOfMember.map(({ selector, message }) => {
       if (selector && message) {
         UI.showAlert(selector, message);
       }
     });
-    return;
   }
   if (!description) {
     UI.showAlert('error-description', 'Expense description is required!');
@@ -226,6 +226,7 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
   if (!splitType) {
     UI.showAlert('error-split-type', 'Expense split type is required!');
   }
+
   if (description && selectedGroupMembers && expenseAmount && splitType) {
     const expenseDataArgumentObject = {
       expenseAmount,
@@ -240,7 +241,6 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
         UI.showAlert('error-message', message, 5000);
       }
       if (splitType === 'percent') {
-
         const message = 'Share percentage of amount for each members should match with expense amount!';
         UI.showAlert('error-message', message, 5000)
       }

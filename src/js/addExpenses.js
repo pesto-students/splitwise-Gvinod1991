@@ -204,6 +204,7 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
       }
       return { selector, message };
     });
+    
   }
   if (validationsOfSplitAmountOrPercentOfMember) {
     validationsOfSplitAmountOrPercentOfMember.map(({ selector, message }) => {
@@ -211,6 +212,7 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
         UI.showAlert(selector, message);
       }
     });
+    return;
   }
   if (!description) {
     UI.showAlert('error-description', 'Expense description is required!');

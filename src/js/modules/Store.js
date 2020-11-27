@@ -2,7 +2,7 @@
 class Store {
   static getUsers() {
     let users = window.localStorage.getItem('users');
-    if (users !== null) {
+    if (users !== null && users !== undefined) {
       users = JSON.parse(users);
     } else {
       users = [];
@@ -17,8 +17,13 @@ class Store {
     if (!userExists) {
       newUserToBeSaved['id'] = `u${users.length + 1}`;
       users.push(newUserToBeSaved);
-      window.localStorage.setItem('users', JSON.stringify(users));
-      return true;
+      try{
+        window.localStorage.setItem('users', JSON.stringify(users));
+        return true;
+      }catch(err){
+        console.log(err);
+        return false;
+      }
     }
     return false;
   }
@@ -30,8 +35,13 @@ class Store {
       && user.password === password);
     if (userExists) {
       // Save loggedin user into localstorage
-      window.localStorage.setItem('loggedInUser', JSON.stringify(userExists));
-      return true;
+      try{
+        window.localStorage.setItem('loggedInUser', JSON.stringify(userExists));
+        return true;
+      }catch(err){
+        console.log(err);
+        return false;
+      }
     }
     return false;
   }

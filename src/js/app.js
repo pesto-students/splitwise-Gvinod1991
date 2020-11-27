@@ -126,7 +126,7 @@ function showBalanceToDom(){
     const balances = App.showSingleMemberBalance(selectedMember);
     if(tableBody){
     tableBody.innerHTML="";
-    if(balances){
+    if(balances && balances.length > 0){
       balances.map((balanceItem) => {
         const row = document.createElement("TR");
         row.innerHTML = `
@@ -149,7 +149,7 @@ function showAllBalancesDom(){
   const balances = App.showAllBalances();
   if(tableBody){
       tableBody.innerHTML = "";
-      if(balances){
+      if(balances && balances.length > 0){
         balances.map((balanceItem) => {
           const row = document.createElement("TR");
           row.innerHTML = `

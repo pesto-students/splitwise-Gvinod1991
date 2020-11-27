@@ -2,13 +2,18 @@ import Store from './modules/Store';
 import ExpenseStore from './modules/ExpenseStore';
 import UI from './modules/Ui';
 import '../addExpenses.html';
-
+const SPLIT_TYPES= {
+  EQUALLY: "equally",
+  EXACT: "exact",
+  PERCENT: "percent"
+}
 const expenseFormSelector = document.querySelector('#expense-form');
 const splitTypeSelector = document.querySelector('#split-type');
 const showSplitResultSelector = document.querySelector('#split-result');
 const showSplitResultLabelSelector = document.querySelector('#split-result-label');
 const groupMembersSelector = document.querySelector('#group-members');
 const expenseAmountSelector = document.querySelector('#expense-amount');
+
 class AddExpense {
   static saveExpense({ description, expenseAmount, splitType, expenseSplit }) {
     const { id } = Store.getLoggedInUser();
@@ -25,14 +30,14 @@ class AddExpense {
   static prepareExpenseDataToSave({ expenseAmount, groupMembers, splitType, splitAmountOrPercentOfMembers }) {
     const loggedInUser = Store.getLoggedInUser();
     let memberWiseExpense = [];
-    if (splitType === 'equally') {
+    if (splitType === SPLIT_TYPES.EQUALLY) {
       const updatedGroupMembers = [...groupMembers, loggedInUser.id];
       memberWiseExpense = this.getSplitEqualAmountOfMembers(updatedGroupMembers, expenseAmount);
     }
-    if (splitType === 'exact') {
+    if (splitType === SPLIT_TYPES.EXACT) {
       memberWiseExpense = this.getSplitExactAmountOfMembers(splitAmountOrPercentOfMembers, expenseAmount);
     }
-    if (splitType === 'percent') {
+    if (splitType === SPLIT_TYPES.PERCENT) {
       memberWiseExpense = this.getSplitPercentAmountOfMembers(splitAmountOrPercentOfMembers, expenseAmount);
     }
     return memberWiseExpense;
@@ -57,6 +62,7 @@ class AddExpense {
     });
     return splitExpenseAmountByMember;
   }
+
   static getSplitExactAmountOfMembers(splitAmountOrPercentOfMembers, expenseAmount) {
     const totalAmountOfMembers = splitAmountOrPercentOfMembers.reduce((acc, { userId, amountOrPercent }) => acc += parseFloat(amountOrPercent), 0);
     if (totalAmountOfMembers === expenseAmount) {
@@ -67,6 +73,7 @@ class AddExpense {
     }
     return false;
   }
+
   static getSplitPercentAmountOfMembers(splitAmountOrPercentOfMembers, expenseAmount) {
     const totalAmountOfMembers = splitAmountOrPercentOfMembers.reduce((acc, { userId, amountOrPercent }) => {
       let amount = (parseFloat(amountOrPercent) * expenseAmount) / 100;
@@ -81,6 +88,7 @@ class AddExpense {
     }
     return false;
   }
+
   static setOptionsToMemberSelect() {
     const groupMembers = document.querySelector('#group-members');
     const users = Store.getUsers();
@@ -95,11 +103,12 @@ class AddExpense {
       groupMembers && groupMembers.appendChild(newOption);
     });
   }
+
   static showSplitResult(splitType, groupMembers, showSplitResultSelector, showSplitResultLabelSelector) {
     const users = Store.getUsers();
     const loggedInUser = Store.getLoggedInUser();
     let splitAmountInputs;
-    if (splitType === 'exact') {
+    if (splitType === SPLIT_TYPES.EXACT) {
       splitAmountInputs = groupMembers.map((id) => {
         const [{ name }] = users.filter(user => user.id === id);
         return `
@@ -112,7 +121,7 @@ class AddExpense {
           </div>`;
       });
     }
-    else if (splitType === 'percent') {
+    else if (splitType ===SPLIT_TYPES.PERCENT) {
       const updatedGroupMembers = [...groupMembers, loggedInUser.id];
       splitAmountInputs = updatedGroupMembers.map((id) => {
         const [{ name }] = users.filter(user => user.id === id);
@@ -133,6 +142,7 @@ class AddExpense {
     }
   }
 }
+
 function resetSplitResults() {
   showSplitResultSelector.innerHTML = "";
   showSplitResultLabelSelector.innerText = 'You paid and split EQUALLY';
@@ -154,12 +164,15 @@ splitTypeSelector && splitTypeSelector.addEventListener('change', (e) => {
     AddExpense.showSplitResult(selectedSplitType, selectedGroupMembers, showSplitResultSelector, showSplitResultLabelSelector);
   }
 });
+
 expenseAmountSelector && expenseAmountSelector.addEventListener('change', () => {
   resetSplitResults();
 });
+
 groupMembersSelector && groupMembersSelector.addEventListener('change', () => {
   resetSplitResults();
 });
+
 expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
   //prevent the defaAddExpense.setOptionsToMemberSelect();ult behaviour of the submit btn
   e.preventDefault();
@@ -176,12 +189,12 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
 
   // Get the share amount and percent when split type is exact or percent
   let splitAmountOrPercentOfMembers;
-  if (splitType === 'exact' && selectedGroupMembers) {
+  if (splitType === SPLIT_TYPES.EXACT && selectedGroupMembers) {
     splitAmountOrPercentOfMembers = selectedGroupMembers.map((member) => {
       return { userId: member, amountOrPercent: document.querySelector(`#${member}-expense-amount`).value }
     });
   }
-  else if (splitType === 'percent' && selectedGroupMembers) {
+  else if (splitType === SPLIT_TYPES.PERCENT && selectedGroupMembers) {
     const loggedInUser = Store.getLoggedInUser();
     const updatedGroupMembers = [...selectedGroupMembers, loggedInUser.id];
     splitAmountOrPercentOfMembers = updatedGroupMembers.map((member) => {
@@ -194,10 +207,10 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
     validationsOfSplitAmountOrPercentOfMember = splitAmountOrPercentOfMembers.map(({ userId, amountOrPercent }) => {
       let selector, message;
       if (amountOrPercent === "" || amountOrPercent <= 0) {
-        if (splitType === 'exact') {
+        if (splitType === SPLIT_TYPES.EXACT) {
           selector = `error-${userId}-expense-amount`;
           message = "Expense share amount should not be negative or empty!"
-        } else if (splitType === 'percent') {
+        } else if (splitType === SPLIT_TYPES.PERCENT) {
           selector = `error-${userId}-expense-percent`;
           message = "Expense share percent should not be negative or empty!"
         }
@@ -236,11 +249,11 @@ expenseFormSelector && expenseFormSelector.addEventListener('submit', (e) => {
     }
     const expenseSplit = AddExpense.prepareExpenseDataToSave(expenseDataArgumentObject);
     if (!expenseSplit) {
-      if (splitType === 'exact') {
+      if (splitType === SPLIT_TYPES.EXACT) {
         const message = 'Share amount for each members should match with expense amount!';
         UI.showAlert('error-message', message, 5000);
       }
-      if (splitType === 'percent') {
+      if (splitType === SPLIT_TYPES.PERCENT) {
         const message = 'Share percentage of amount for each members should match with expense amount!';
         UI.showAlert('error-message', message, 5000)
       }

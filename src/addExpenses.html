@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SplitWise App</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container mt-4">
+    <h1 class="text-center text-info"><i class="fa fa-columns"></i>SplitWise App</h1>
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-6">
+            <h4>Add Expense</h4>
+          </div>
+          <div class="col-md-6">
+            <a href="/app.html" class="btn btn-info"><i class="fa fa-arrow-left"></i><span class="p-2">Back To View Balance</span></a>
+          </div>
+        </div>
+        <form class="form" id="expense-form">
+          <div class="form-group">
+            <label>Description</label>
+            <input id="description" class="form-control" type="text" />
+            <p id="error-description" class="text-danger"></p>
+          </div>
+          <div class="form-group">
+            <label>Choose Friends</label>
+            <select id="group-members" class="form-control" multiple>
+            </select>
+            <p id="error-group-members" class="text-danger"></p>
+          </div>
+          <div class="form-group">
+            <label>Amount</label>
+            <input pattern="^[0-9]*$" id="expense-amount" class="form-control" type="number" />
+            <p id="error-expense-amount" class="text-danger"></p>
+          </div>
+          <div class="form-group">
+            <label>Split Expense </label>
+            <select id="split-type" class="form-control">
+              <option value="equally">EQUALLY</option>
+              <option value="exact">EXACT</option>
+              <option value="percent">PERCENT</option>
+            </select>
+            <p id="error-split-type" class="text-danger"></p>
+          </div>
+          <div class="form-group">
+            <label id="split-result-label">You paid and split EQUALLY</label>
+            <div id="split-result">
+
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Save</button>
+         
+        </form>
+        <div id="error-message" style="display: none;" class="mt-4 alert alert-danger"></div>
+        <div id="success-message" style="display: none;" class="mt-4 alert alert-success"></div>
+        <br/>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+  </div>
+  <script src="/bundle.js"></script>
+</body>
+
+</html>

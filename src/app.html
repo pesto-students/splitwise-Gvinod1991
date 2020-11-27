@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SplitWise App</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+    integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+
+<body>
+  <div class="container mt-4">
+    <h1 class="text-center text-info"><i class="fa fa-columns"></i>SplitWise App</h1>
+    <div class="row">
+      <div class="col-md-2"></div>
+      <div class="col-md-4">
+        <div id="profile-details">
+        </div>
+      </div>
+      <div class="col-6 col-md-2">
+        <a href="addExpenses.html" class="btn btn-info"><i class="fa fa-plus"></i> Add Expenses</a>
+        <br/>
+        <br/>
+      </div>
+      <div class="col-6 col-md-2">
+        <button id="logout" class="btn btn-info"><i class="fa fa-sign-out"></i>Logout</button>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+    <hr />
+    <div class="row mt-4">
+      <div class="col-md-2"></div>
+      <div class="col-md-8">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label>Choose others or you to show balance?</label>
+              <select id="app-group-members" class="form-control">
+              </select>
+              <p id="ap-error-group-members" class="text-danger"></p>
+            </div>
+          </div>
+          <div class="col-3 col-md-2">
+            <button class="btn btn-primary mt-5" id="show-balance"><i class="fa fa-eye"></i>Show</button>
+          </div>
+          <div class="col-2 col-md-2">
+            <h4 class="mt-5"> OR</h4>
+          </div>
+          <div class="col-3 col-md-4">
+            <button class="btn btn-primary mt-5" id="show-balances"><i class="fa fa-eye"></i> Show All Balances</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <table class="table">
+              <thead>
+                <th>User</th>
+                <th>Owes</th>
+                <th>To</th>
+                <th>Amount</th>
+              </thead>
+              <tbody id="table-body">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-2"></div>
+    </div>
+  </div>
+  <script src="/bundle.js"></script>
+</body>
+
+</html>
